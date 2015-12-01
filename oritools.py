@@ -254,20 +254,24 @@ def quaternion_from_rotvec(r):
         return np.array([1, 0, 0, 0])  # unit real number is identity quaternion
 
 
-def get_a2b(a, b, rep_out='quaternion'):
+def get_a2b(a, b, rep_out='rotmat'):
     """Returns an SO3 quantity that will align vector a with vector b.
     The output will be in the representation selected by rep_out:
     'rotmat' (rotation matrix) OR 'quaternion'.
 
     >>> a = trns.random_vector(3)
     >>> b = trns.random_vector(3)
-    >>> R = get_a2b(a, b, 'rotmat')
+    >>> R = get_a2b(a, b)
     >>> p1 = R.dot(a)
     >>> print(np.allclose(np.cross(p1, b), [0,0,0]))
     True
-    >>> q = get_a2b(a, b)
+    >>> p1.dot(b) > 0
+    True
+    >>> q = get_a2b(a, b, 'quaternion')
     >>> p2 = qapply_points(q, a)
     >>> print(np.allclose(np.cross(p2, b), [0,0,0]))
+    True
+    >>> p2.dot(b) > 0
     True
 
     """

@@ -508,6 +508,8 @@ def get_a2b(a, b, rep_out='rotmat'):
     >>> p1 = R.dot(a)
     >>> print(np.allclose(np.cross(p1, b), [0, 0, 0]))
     True
+    >>> p1.dot(b) > 0
+    True
     >>> q = get_a2b(a, b, 'quaternion')
     >>> p2 = apply_to_points(q, a)
     >>> print(np.allclose(np.cross(p2, b), [0, 0, 0]))
