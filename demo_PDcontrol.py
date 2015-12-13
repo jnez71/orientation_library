@@ -12,7 +12,7 @@ code is super short and neat thanks to oritools.
 
 Once the simulation results have been stored, the script then goes into DISPLAY where
 the terror that is matplotlib is used to animate the results. You will notice that the
-animation is not real time - this is because matplotlib is garbage. Remember that it is
+animation is not real time - this is because matplotlib has issues. Remember that it is
 only displaying results; the simulation has already been completed.
 
 In the animation, rigid body orientation is represented as 3 perpendicular lines. Dotted
@@ -58,14 +58,15 @@ invI = npl.inv(I)  # store inverse for future use
 # Define state and initial conditions:
 q = trns.random_quaternion()  # orientation state quaternion representing a conversion ***from body frame to world frame***
 w = 10 * (np.random.rand(3) - 0.5)  # angular velocity state (rad/s) in world frame
+torque = np.array([0, 0, 0]) # initial control input torque, need only be initialized for programming purposes
 print('Initial Orientation: {}'.format(q))
 print('Initial Ang. Velocity: {}'.format(np.rad2deg(w)))
 
 # Controller setup (set gains to 0 if you want to test torque-free precession):
 q_des = trns.random_quaternion()  # desired orientation state
 w_des = np.array([0, 0, 0])  # desired angular velocity state ()
-kp = np.array([140, 140, 140])  # proportional gain (roll, pitch, yaw)
-kd = np.array([170, 170, 170])  # derivative gain (roll, pitch, yaw)
+kp = np.array([150, 150, 150])  # proportional gain (body frame roll, pitch, yaw)
+kd = np.array([170, 170, 170])  # derivative gain (body frame rolling, pitching, yawing)
 print('Desired Orientation: {}'.format(q_des))
 print('Desired Ang. Velocity: {}'.format(np.rad2deg(w_des)))
 print('Proportional Gains: {}'.format(kp))
@@ -109,7 +110,6 @@ torque_history = np.zeros((len(t_arr), 3))
 # is  qdot = f(w,dt) = ori.quaternion_from_rotvec(w*dt)/dt, but it is crucial to understand that
 # integrating this equation requires use of ori.plus, so it cannot be easily fed into a standard solver.
 # ---
-torque = np.array([0, 0, 0])  # don't mind me, just initializing
 # Simulate over t_arr:
 for i, t in enumerate(t_arr):
     # Record current state:
@@ -123,10 +123,12 @@ for i, t in enumerate(t_arr):
     H = I_world.dot(w)  # current angular momentum
     wb = ori.qapply_points(trns.quaternion_inverse(q), w)  # w in body frame
     dq = ori.quaternion_from_rotvec(wb * dt)  # change in orientation for this timestep instant
-    # PD controller... in ONLY THREE LINES BITCHES:
+    # PD controller:
     q_err = ori.error(q, q_des)  # q_err is a rotvec
     w_err = w_des - w
-    torque = (kp * q_err) + (kd * w_err)
+    kpW = np.diag(ori.qapply_matrix(q, np.diag(kp))) # world frame kp gains
+    kdW = np.diag(ori.qapply_matrix(q, np.diag(kd))) # world frame kd gains
+    torque = (kpW * q_err) + (kdW * w_err)
     # Compute next state:
     q = ori.plus(dq, q)  # new orientation computed using dq and old q
     I_world = ori.qapply_matrix(q, I)  # new I_world computed using new q
@@ -210,18 +212,19 @@ ax4.set_ylabel('- World Y +')
 ax4.set_zlabel('- World Z +')
 ax4.grid(True)
 
-# Plot desired
+# Plot desired:
 body_des = 2 * ori.qapply_points(q_des, body)
 ax4.plot(body_des[0, :2], body_des[1, :2], body_des[2, :2], color='red', ls='--', linewidth=0.8)
 ax4.plot(body_des[0, 2:4], body_des[1, 2:4], body_des[2, 2:4], color='green', ls='--', linewidth=0.8)
 ax4.plot(body_des[0, 4:6], body_des[1, 4:6], body_des[2, 4:6], color='blue', ls='--', linewidth=0.8)
 
-# Plot initial
+# Plot initial:
 body_world_history_init = 2 * body_world_history[:, :, 0]
 ax4.plot(body_world_history_init[0, :2], body_world_history_init[1, :2], body_world_history_init[2, :2], color='red', ls=':', linewidth=0.8)
 ax4.plot(body_world_history_init[0, 2:4], body_world_history_init[1, 2:4], body_world_history_init[2, 2:4], color='green', ls=':', linewidth=0.8)
 ax4.plot(body_world_history_init[0, 4:6], body_world_history_init[1, 4:6], body_world_history_init[2, 4:6], color='blue', ls=':', linewidth=0.8)
 
+# Create drawing objects:
 x = ax4.plot(body_world_history[0, :2, 0], body_world_history[1, :2, 0], body_world_history[2, :2, 0], color='red', linewidth=4)
 y = ax4.plot(body_world_history[0, 2:4, 0], body_world_history[1, 2:4, 0], body_world_history[2, 2:4, 0], color='green', linewidth=4)
 z = ax4.plot(body_world_history[0, 4:6, 0], body_world_history[1, 4:6, 0], body_world_history[2, 4:6, 0], color='blue', linewidth=4)
