@@ -59,7 +59,7 @@ invI = npl.inv(I)  # store inverse for future use
 q = trns.random_quaternion()  # orientation state quaternion representing a conversion ***from body frame to world frame***
 w = 10 * (np.random.rand(3) - 0.5)  # angular velocity state (rad/s) in world frame
 torque = np.array([0, 0, 0]) # initial control input torque, need only be initialized for programming purposes
-print('Initial Orientation: {}'.format(q))
+print('\nInitial Orientation: {}'.format(q))
 print('Initial Ang. Velocity: {}'.format(np.rad2deg(w)))
 
 # Controller setup (set gains to 0 if you want to test torque-free precession):

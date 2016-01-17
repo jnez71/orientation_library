@@ -31,11 +31,6 @@ anything from this library, this transformations file will be imported,
 not the old one from tf.
 Current Version: 2015.07.18
 
-**test_oritools**
-
-An all-cases unit test for oritools. This is in addition to the
-doctest built into oritools (and so3tools for that matter).
-
 **(dependencies)**
 
 - numpy

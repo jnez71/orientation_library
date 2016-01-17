@@ -151,7 +151,7 @@ def qapply_points(q, P, t=None):
      [ 1.  0.  1.]
      [ 0.  0.  1.]]
     >>> P3 = qapply_points(q, P, [1, 2, 3])
-    >>> print(np.round(P3, 2))
+    >>> print(np.abs(np.round(P3, 2)))  # abs is because -0 = 0
     [[ 1.  0.  0.]
      [ 3.  2.  3.]
      [ 3.  3.  4.]]
