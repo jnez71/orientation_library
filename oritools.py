@@ -292,6 +292,44 @@ def get_a2b(a, b, rep_out='rotmat'):
         raise ValueError("Invalid rep_out. Choose 'rotmat' or 'quaternion'.")
 
 
+def make_affine(x, t=None):
+    """Returns the affine space form of a given array x. If x is
+    a vector, it appends a new element with value 1 (creating a
+    homogeneous coordinate). If x is a square matrix, it appends
+    the row [0, 0, 0...] and the column [t, 1].T representing a
+    translation of vector t. If t is None (default) then the
+    translation is set to the zero vector.
+    See: https://en.wikipedia.org/wiki/Affine_transformation#Augmented_matrix
+
+    >>> v = np.array([-4, 5, 2])
+    >>> print(make_affine(v))
+    [-4  5  2  1]
+    >>> R = np.array([[np.cos(1.5), -np.sin(1.5)], [np.sin(1.5), np.cos(1.5)]])
+    >>> print(make_affine(R, [3, -4]))
+    [[ 0.0707372  -0.99749499  3.        ]
+     [ 0.99749499  0.0707372  -4.        ]
+     [ 0.          0.          1.        ]]
+    >>> M = trns.random_rotation_matrix()  # fyi this function creates a tfmat
+    >>> print(np.allclose(M, make_affine(M[:3, :3])))
+    True
+
+    """
+    x = np.array(x)
+    shape = x.shape
+    dim = len(shape)
+    if dim == 1:
+        return np.append(x, 1)
+    elif dim == 2 and shape[0] == shape[1]:
+        cast = np.zeros((shape[0] + 1, shape[1] + 1))
+        cast[-1, -1] = 1
+        cast[:shape[0], :shape[1]] = x
+        if t is not None:
+            cast[:-1, -1] = t
+        return cast
+    else:
+        raise ValueError("Array to make affine must be a row or a square.")
+
+
 def normalize(v):
     """Returns v unitized by its 2norm.
     (This is a simpler version of trns.unit_vector).
