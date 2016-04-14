@@ -208,11 +208,7 @@ def angle_axis_from_quaternion(q):
     if q[0] < 0:
         q = -q
     # Extract axis:
-    imMax = max(map(abs, q[1:]))
-    if not np.isclose(imMax, 0):
-        axis = normalize(q[1:] / (imMax * npl.norm(q[1:])))
-    else:
-        axis = np.array([0, 0, 0])
+    axis = normalize(q[1:])
     # Extract angle:
     angle = 2 * np.arccos(q[0])
     # Finally:

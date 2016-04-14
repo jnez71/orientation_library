@@ -438,11 +438,7 @@ def angle_axis(x):
         if x[0] < 0:
             x = -x
         # Extract axis:
-        imMax = max(map(abs, x[1:]))
-        if not np.isclose(imMax, 0):
-            axis = normalize(x[1:] / (imMax * npl.norm(x[1:])))
-        else:
-            axis = np.array([0, 0, 0])
+        axis = normalize(x[1:])
         # Extract angle:
         angle = 2*np.arccos(x[0])
     # In the rotvec case, the routine is trivial:
