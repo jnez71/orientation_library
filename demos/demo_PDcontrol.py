@@ -29,17 +29,17 @@ Jason Nezvadovitz
 """
 ################################################# IMPORTS
 
-# standard
 from __future__ import division
-# 3rd party
+
 import numpy as np
 import numpy.linalg as npl
-import transformations as trns
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import mpl_toolkits.mplot3d.axes3d as p3
-# 1st party
-import oritools as ori
+
+from orientation_library import transformations as trns
+from orientation_library import oritools as ori
 
 ################################################# SETUP
 
