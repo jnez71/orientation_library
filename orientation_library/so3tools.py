@@ -627,7 +627,11 @@ def normalize(v):
     True
 
     """
-    return np.array(v) / npl.norm(v)
+    mag = npl.norm(v)
+    if np.isclose(mag, 0):
+        return np.zeros_like(v)
+    else:
+        return np.array(v) / npl.norm(v)
 
 
 # Module unit test:
